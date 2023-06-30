@@ -3,6 +3,10 @@ import { embedDashboard } from "@superset-ui/embedded-sdk"
 import "./App.css"
 
 
+
+const supersetUrl=process.env.REACT_APP_SUPERSET_URL;
+
+
 async function fetchAccessToken() {
   try {
     const body = {
@@ -12,8 +16,7 @@ async function fetchAccessToken() {
       refresh: true,
     }
 
-    const response = await fetch(
-      "http://localhost:8088/api/v1/security/login",
+    const response = await fetch(supersetUrl+'/api/v1/security/login',
       {
         method: "POST",
         body: JSON.stringify(body),
@@ -46,7 +49,7 @@ async function fetchGuestToken() {
         "rls": []
       };
 
-    const response = await fetch("http://localhost:8088/api/v1/security/guest_token/", 
+    const response = await fetch(supersetUrl+'/api/v1/security/guest_token/', 
     {
       method: "POST",
       headers: {
@@ -72,7 +75,7 @@ function App() {
       var guestToken = await fetchGuestToken();
       await embedDashboard({
         id: "d025df9e-7e8b-4c9a-a8f4-8ec781c075fe", // given by the Superset embedding UI
-        supersetDomain: "http://localhost:8088",
+        supersetDomain: supersetUrl,
         mountPoint: document.getElementById("dashboard"), // html element in which iframe render
         fetchGuestToken: () => guestToken,
         dashboardUiConfig: {
