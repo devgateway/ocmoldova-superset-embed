@@ -4,6 +4,21 @@ import "./App.css"
 
 const supersetUrl = process.env.REACT_APP_SUPERSET_URL ? process.env.REACT_APP_SUPERSET_URL : "http://localhost:8088";
 
+async function fetchCustomFieldsForCurrentPage() {
+  try {
+    var urlParts = window.location.pathname.split('/');
+    var slug = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2]; // In case of trailing '/'
+
+    const origin = window.location.origin;
+    const response = await fetch(`${origin}/wp-json/customRest/v1/page-meta/${slug}`);
+    const jsonResponse = await response.json();
+    console.log("jsonResponse=", jsonResponse);
+    return jsonResponse;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function fetchAccessToken() {
   try {
     const body = {
@@ -65,14 +80,15 @@ async function fetchGuestToken(dashboardId) {
 
 
 function App() {
-  let params = new URLSearchParams(window.location.search);
-  const dashboardId = params.get('dashboardId');
-  const embedDashboardHash = params.get('embedDashboardHash');
-  console.log("dashboardId=", dashboardId);
-  console.log("embedDashboardHash=", embedDashboardHash);
 
   useEffect(() => {
     const embed = async () => {
+      var customFields = await fetchCustomFieldsForCurrentPage();
+      const dashboardId = customFields.dashboardId[0];
+      const embedDashboardHash = customFields.embedDashboardHash[0];
+      console.log("dashboardId=", dashboardId);
+      console.log("embedDashboardHash=", embedDashboardHash);
+
       var guestToken = await fetchGuestToken(dashboardId);
       await embedDashboard({
         id: `${embedDashboardHash}`, // given by the Superset embedding UI
@@ -89,7 +105,7 @@ function App() {
     if (document.getElementById("dashboard")) {
       embed()
     }
-  }, [dashboardId, embedDashboardHash])
+  }, [])
 
   return (
     <div className="App">
