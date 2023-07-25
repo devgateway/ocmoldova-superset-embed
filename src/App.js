@@ -97,8 +97,8 @@ function App() {
         fetchGuestToken: () => guestToken,
         dashboardUiConfig: {
           hideTitle: true,
-          hideChartControls: true,
-          hideTab: true,
+          hideChartControls: false,
+          hideTab: false,
         },
       })
     }
