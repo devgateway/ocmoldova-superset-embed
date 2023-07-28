@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { embedDashboard } from "@superset-ui/embedded-sdk"
 import "./App.css"
+import { iframeResizer } from 'iframe-resizer';
 
 const supersetUrl = process.env.REACT_APP_SUPERSET_URL ? process.env.REACT_APP_SUPERSET_URL : "http://localhost:8088";
 
@@ -78,6 +79,11 @@ async function fetchGuestToken(dashboardId) {
   }
 };
 
+function findIframeAndSetId(ed) {
+  const iframe = document.getElementById("dashboard").getElementsByTagName('iframe')[0];
+  iframe.id = 'iframe';
+  return iframe;
+}
 
 function App() {
 
@@ -90,7 +96,7 @@ function App() {
       console.log("embedDashboardHash=", embedDashboardHash);
 
       var guestToken = await fetchGuestToken(dashboardId);
-      await embedDashboard({
+      var embedDashboardResponse = await embedDashboard({
         id: `${embedDashboardHash}`, // given by the Superset embedding UI
         supersetDomain: supersetUrl,
         mountPoint: document.getElementById("dashboard"), // html element in which iframe render
@@ -100,7 +106,10 @@ function App() {
           hideChartControls: false,
           hideTab: false,
         },
-      })
+      });
+
+      const iframe = findIframeAndSetId(embedDashboardResponse);
+      iframeResizer({ log: false }, '#' + iframe.id);
     }
     if (document.getElementById("dashboard")) {
       embed()
@@ -108,8 +117,7 @@ function App() {
   }, [])
 
   return (
-    <div className="App">
-      <div id="dashboard" />
+    <div className="App" id="dashboard">
     </div>
   )
 }
