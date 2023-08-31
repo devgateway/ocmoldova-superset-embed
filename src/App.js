@@ -79,6 +79,17 @@ async function fetchGuestToken(dashboardId) {
   }
 };
 
+const getCookieValue = (name) => (
+  document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+);
+
+async function changeLang(lang) {
+  const response = await fetch(supersetUrl+'/lang/'+lang, {
+    credentials: "include"
+  });
+  return response;
+}	
+
 function findIframeAndSetId(ed) {
   const iframe = document.getElementById("dashboard").getElementsByTagName('iframe')[0];
   iframe.id = 'iframe';
@@ -94,6 +105,12 @@ function App() {
       const embedDashboardHash = customFields.embedDashboardHash[0];
       console.log("dashboardId=", dashboardId);
       console.log("embedDashboardHash=", embedDashboardHash);
+
+      const lang = getCookieValue('pll_language');
+
+      console.log("lang=", lang);
+
+      await changeLang(lang);
 
       var guestToken = await fetchGuestToken(dashboardId);
       var embedDashboardResponse = await embedDashboard({
